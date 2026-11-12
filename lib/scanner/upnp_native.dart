@@ -88,11 +88,7 @@ Future<UpnpObservation> inspectUpnp(String host) async {
   try {
     final location = await _discover(host);
     if (location == null) {
-      return const UpnpObservation(
-        detected: false,
-        message:
-            'Nessuna risposta alla ricerca UPnP mirata. Non prova che UPnP sia disattivato: controlla le impostazioni del router.',
-      );
+      return const UpnpObservation(detected: false, message: 'upnp.noResponse');
     }
     detected = true;
     final description = await _request(location);
@@ -101,11 +97,7 @@ Future<UpnpObservation> inspectUpnp(String host) async {
     }
     final service = gatewayService(description.body, location, host);
     if (service == null) {
-      return const UpnpObservation(
-        detected: true,
-        message:
-            'Dispositivo UPnP rilevato; nessun servizio gateway compatibile trovato. UPnP non implica necessariamente inoltro porte.',
-      );
+      return const UpnpObservation(detected: true, message: 'upnp.noGateway');
     }
     for (var index = 0; index < 8; index++) {
       final response = await _request(
@@ -124,9 +116,7 @@ Future<UpnpObservation> inspectUpnp(String host) async {
           detected: true,
           mappings: mappings,
           mappingListComplete: code == '713',
-          message: code == '713'
-              ? 'Letto l’elenco del servizio UPnP selezionato. Non include necessariamente regole manuali, DMZ, PCP/NAT-PMP o firewall IPv6.'
-              : 'UPnP rilevato, ma elenco regole non completamente leggibile. Verifica il pannello del router.',
+          message: code == '713' ? 'upnp.complete' : 'upnp.partial',
         );
       }
       mappings.add(parseMapping(response.body));
@@ -134,15 +124,13 @@ Future<UpnpObservation> inspectUpnp(String host) async {
     return UpnpObservation(
       detected: true,
       mappings: mappings,
-      message:
-          'Mostrate le prime otto regole UPnP del servizio selezionato. L’elenco può essere incompleto.',
+      message: 'upnp.limit',
     );
   } catch (_) {
     return UpnpObservation(
       detected: detected,
       mappings: mappings,
-      message:
-          'Verifica UPnP incompleta: servizio non compatibile, permessi o errore di rete. Nessuna configurazione è stata modificata.',
+      message: 'upnp.incomplete',
     );
   }
 }

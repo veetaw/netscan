@@ -24,3 +24,8 @@ Source: "..\..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ign
 Name: "{group}\Netscan"; Filename: "{app}\netscan.exe"
 [Run]
 Filename: "{app}\netscan.exe"; Description: "Open Netscan"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+Root: HKCU; Subkey: "Software\Classes\netscan"; ValueType: string; ValueName: ""; ValueData: "URL:Netscan"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\netscan"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCU; Subkey: "Software\Classes\netscan\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\netscan.exe"" ""%1"""

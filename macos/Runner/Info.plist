@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+<key>CFBundleURLTypes</key><array><dict><key>CFBundleURLSchemes</key><array><string>netscan</string></array><key>CFBundleURLName</key><string>dev.netscan.inspect</string></dict></array>
+<key>FlutterDeepLinkingEnabled</key><false/>
+<key>NSBonjourServices</key><array><string>_http._tcp</string><string>_https._tcp</string><string>_rtsp._tcp</string><string>_ssh._tcp</string><string>_smb._tcp</string><string>_googlecast._tcp</string><string>_airplay._tcp</string><string>_hap._tcp</string></array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Netscan controlla i dispositivi della rete che hai scelto per aiutarti a proteggerli.</string>
 	<key>CFBundleDevelopmentRegion</key>

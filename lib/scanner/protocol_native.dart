@@ -43,7 +43,7 @@ Future<ProtocolObservation> inspectRtsp(String host, int port) async {
       return ProtocolObservation(
         protocol: 'RTSP',
         port: port,
-        summary: 'Porta raggiungibile, protocollo RTSP non confermato.',
+        summary: 'rtsp.unknown',
       );
     }
     final response = await headers('DESCRIBE');
@@ -62,17 +62,16 @@ Future<ProtocolObservation> inspectRtsp(String host, int port) async {
       status: status,
       metadataWithoutAuth: metadata,
       summary: metadata
-          ? 'Il percorso / risponde senza credenziali dichiarando metadati SDP. Verifica l’autenticazione della camera. Non è stata provata la visione del video.'
+          ? 'rtsp.metadata'
           : [401, 403].contains(status)
-          ? 'Il percorso / richiede autenticazione o nega accesso. Questo non verifica gli altri percorsi o l’accesso cloud.'
-          : 'RTSP confermato; accesso video non determinabile sul percorso /. Nessuna immagine acquisita.',
+          ? 'rtsp.auth'
+          : 'rtsp.confirmed',
     );
   } catch (_) {
     return ProtocolObservation(
       protocol: 'RTSP',
       port: port,
-      summary:
-          'Verifica RTSP incompleta: timeout, protocollo differente o risposta non compatibile.',
+      summary: 'rtsp.incomplete',
     );
   }
 }
@@ -129,10 +128,10 @@ inspectOnvif(String host, int port) async {
           port: port,
           status: response.statusCode,
           summary: identity != null
-              ? 'Informazioni prodotto ONVIF ricevute. Sono dichiarazioni del dispositivo, da confermare sull’etichetta.'
+              ? 'onvif.identity'
               : [401, 403].contains(response.statusCode)
-              ? 'Il percorso ONVIF richiede autenticazione o nega accesso; il servizio non è stato identificato con certezza.'
-              : 'Nessuna identità ONVIF verificata sul percorso standard. Non esclude una camera o un percorso diverso.',
+              ? 'onvif.auth'
+              : 'onvif.unknown',
         ),
         identity: identity,
       );
@@ -142,7 +141,7 @@ inspectOnvif(String host, int port) async {
       observation: ProtocolObservation(
         protocol: 'ONVIF',
         port: port,
-        summary: 'Verifica ONVIF sul percorso standard non conclusa.',
+        summary: 'onvif.incomplete',
       ),
       identity: null,
     );

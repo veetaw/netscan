@@ -5,17 +5,20 @@ class ProtocolObservation {
     required this.summary,
     this.status,
     this.metadataWithoutAuth = false,
+    this.evidence,
   });
   final String protocol, summary;
   final int port;
   final int? status;
   final bool metadataWithoutAuth;
+  final String? evidence;
   Map<String, Object?> toJson() => {
     'protocol': protocol,
     'port': port,
     'status': status,
     'summary': summary,
     'metadataWithoutAuth': metadataWithoutAuth,
+    'evidence': evidence,
   };
 }
 

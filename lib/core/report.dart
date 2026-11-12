@@ -18,6 +18,7 @@ class ScanReport {
     this.protocols = const [],
     this.identity,
     this.completedAt,
+    this.imported = false,
   });
   final String host;
   final String method;
@@ -28,6 +29,7 @@ class ScanReport {
   final List<ProtocolObservation> protocols;
   final DeviceIdentity? identity;
   final DateTime? completedAt;
+  final bool imported;
   Map<String, Object?> toJson() => {
     'schemaVersion': 1,
     'completedAtUtc': completedAt?.toUtc().toIso8601String(),

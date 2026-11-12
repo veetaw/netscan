@@ -15,19 +15,14 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
       completedAt: DateTime.now(),
       method: 'browser-http',
       httpStatus: response.statusCode,
-      message:
-          'Risposta HTTP leggibile. Conferma soltanto la risposta '
-          'dell’indirizzo richiesto, non modello, firmware o sicurezza.',
+      message: 'web.readable',
     );
   } catch (_) {
     return ScanReport(
       host: host,
       completedAt: DateTime.now(),
       method: 'browser-http',
-      message:
-          'Esito non determinabile dal browser. Possibili cause: CORS, '
-          'permesso di rete locale, certificato, contenuto misto, timeout o '
-          'dispositivo irraggiungibile. Non significa che il dispositivo sia assente.',
+      message: 'web.unknown',
     );
   } finally {
     client.close();

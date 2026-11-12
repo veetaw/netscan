@@ -11,12 +11,10 @@ bool cellularOnly(List<ConnectivityResult> values) =>
 
 Future<void> _checkNetwork() async {
   if (!(Platform.isAndroid || Platform.isIOS)) {
-    throw StateError('Usa l’app su un telefono collegato alla rete cellulare.');
+    throw StateError('external.mobileOnly');
   }
   if (!cellularOnly(await Connectivity().checkConnectivity())) {
-    throw StateError(
-      'Disattiva Wi-Fi e VPN e attiva i dati mobili. Nessuna prova eseguita.',
-    );
+    throw StateError('external.network');
   }
 }
 
@@ -56,10 +54,6 @@ Future<ScanReport> inspectExternal(String host) async {
     method: 'external-tcp-cellular-reported',
     ports: ports,
     protocols: protocols,
-    message:
-        'Rete cellulare riportata dal sistema prima e dopo le prove. '
-        'La rotta non è vincolata all’interfaccia: se hai cambiato rete o lasciato una VPN attiva, ripeti. '
-        'Una porta raggiungibile non identifica il pannello o la camera. '
-        'Una mancata connessione non dimostra isolamento completo: cloud/P2P, IPv6, UDP e altre porte non sono verificati.',
+    message: 'external.complete',
   );
 }

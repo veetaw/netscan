@@ -74,7 +74,7 @@ void main() {
       try {
         final result = await inspectRtsp('127.0.0.1', server.port);
         expect(result.metadataWithoutAuth, isTrue);
-        expect(result.summary, contains('Non è stata provata la visione'));
+        expect(result.summary, 'rtsp.metadata');
       } finally {
         await sub.cancel();
         await server.close();

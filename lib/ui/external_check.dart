@@ -1,3 +1,4 @@
+import '../l10n/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -26,11 +27,7 @@ class _ExternalCheckState extends State<ExternalCheck> {
   Future<void> _run() async {
     final host = _address.text.trim();
     if (!isPublicIPv4(host)) {
-      setState(
-        () => _error =
-            'Inserisci l’IPv4 pubblico dedicato mostrato dal tuo router. '
-            'Indirizzi privati, CGNAT e IPv6 non sono supportati in questa prova.',
-      );
+      setState(() => _error = 'external.invalid');
       return;
     }
     setState(() {
@@ -46,7 +43,7 @@ class _ExternalCheckState extends State<ExternalCheck> {
         setState(
           () => _error = e is StateError
               ? e.message.toString()
-              : 'Prova non conclusa. Usa l’app mobile, controlla dati mobili e permessi e riprova.',
+              : 'external.error',
         );
       }
     } finally {
@@ -57,30 +54,19 @@ class _ExternalCheckState extends State<ExternalCheck> {
   @override
   Widget build(BuildContext context) => ExpansionTile(
     tilePadding: EdgeInsets.zero,
-    title: const Text('Controlla da fuori casa'),
-    subtitle: const Text('App mobile + dati cellulari · verifica separata'),
+    title: Text(tr(context, 'external.title')),
+    subtitle: Text(tr(context, 'external.subtitle')),
     children: [
-      const Text(
-        '1. Nel router leggi l’IPv4 pubblico della connessione di casa. '
-        'Se è condiviso dall’operatore (CGNAT), non eseguire questa prova. '
-        '2. Sul telefono disattiva Wi-Fi e VPN e attiva i dati mobili. '
-        '3. Inserisci l’indirizzo dedicato e avvia il controllo. '
-        'Non servono account o server Netscan.',
-      ),
-      const SizedBox(height: 16),
+      Text(tr(context, 'external.instructions')),
+      SizedBox(height: 16),
       TextField(
         controller: _address,
         enabled: !_busy,
-        decoration: const InputDecoration(
-          labelText: 'IPv4 pubblico della tua connessione',
-        ),
+        decoration: InputDecoration(labelText: tr(context, 'external.address')),
       ),
       CheckboxListTile(
         contentPadding: EdgeInsets.zero,
-        title: const Text(
-          'Ho verificato che l’IP sia dedicato alla mia connessione, '
-          'ho il permesso di controllarlo e ho disattivato Wi-Fi e VPN.',
-        ),
+        title: Text(tr(context, 'external.authorize')),
         value: _authorized,
         onChanged: _busy
             ? null
@@ -89,14 +75,11 @@ class _ExternalCheckState extends State<ExternalCheck> {
       FilledButton(
         onPressed: _authorized && !_busy ? _run : null,
         child: Text(
-          _busy ? 'Prova esterna in corso…' : 'Controlla accessi esterni',
+          _busy ? tr(context, 'external.running') : tr(context, 'external.run'),
         ),
       ),
       if (_busy)
-        const Padding(
-          padding: EdgeInsets.all(16),
-          child: LinearProgressIndicator(),
-        ),
+        Padding(padding: EdgeInsets.all(16), child: LinearProgressIndicator()),
       if (_error != null) StatusText(_error!),
       if (_report != null) ...[
         ReportView(report: _report!),
@@ -104,20 +87,16 @@ class _ExternalCheckState extends State<ExternalCheck> {
           onPressed: () async {
             await Clipboard.setData(
               ClipboardData(
-                text: const JsonEncoder.withIndent(
-                  '  ',
-                ).convert(_report!.toJson()),
+                text: JsonEncoder.withIndent('  ').convert(_report!.toJson()),
               ),
             );
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Report copiato: contiene il tuo IP pubblico.'),
-                ),
+                SnackBar(content: Text(tr(context, 'external.copied'))),
               );
             }
           },
-          child: const Text('Copia report della prova esterna'),
+          child: Text(tr(context, 'external.copy')),
         ),
       ],
     ],

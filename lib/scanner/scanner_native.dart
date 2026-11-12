@@ -1,3 +1,4 @@
+import 'banner_native.dart';
 import '../core/protocol.dart';
 import 'protocol_native.dart';
 import 'upnp_native.dart';
@@ -18,8 +19,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
         host: host,
         completedAt: DateTime.now(),
         method: 'tcp',
-        message:
-            'Permesso di rete locale negato. Abilitalo nelle impostazioni per riprovare.',
+        message: 'scan.permission',
       );
     }
   }
@@ -38,6 +38,11 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
   }
   final protocols = <ProtocolObservation>[];
   DeviceIdentity? identity;
+  for (final port in [21, 22, 23]) {
+    if (ports.any((p) => p.port == port && p.reachable)) {
+      protocols.add(await inspectGreeting(host, port));
+    }
+  }
   for (final port in [554, 8554]) {
     if (ports.any((p) => p.port == port && p.reachable)) {
       protocols.add(await inspectRtsp(host, port));
@@ -58,10 +63,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
     protocols: protocols,
     identity: identity,
     upnp: await inspectUpnp(host),
-    message:
-        'Controllate dodici porte e verificati i protocolli compatibili. '
-        'Una porta raggiungibile non dimostra una vulnerabilità. '
-        'Esposizione a Internet e accesso cloud/P2P restano da verificare.',
+    message: 'scan.complete',
   );
 }
 

@@ -1,3 +1,7 @@
+import 'official_match.dart';
+import 'threat_panel.dart';
+import '../core/advisory_rules.dart';
+import '../l10n/strings.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/advisories.dart';
@@ -23,6 +27,7 @@ class _AdvisoryPanelState extends State<AdvisoryPanel> {
   AdvisorySearch? _results;
   String? _error;
   String _query = '';
+  RuleMatch? _match;
   @override
   void dispose() {
     _timer?.cancel();
@@ -32,9 +37,7 @@ class _AdvisoryPanelState extends State<AdvisoryPanel> {
   Future<void> _search() async {
     final query = widget.model.text.trim();
     if (query.length < 3) {
-      setState(
-        () => _error = 'Inserisci produttore e modello, almeno tre caratteri.',
-      );
+      setState(() => _error = tr(context, 'advisory.invalid'));
       return;
     }
     setState(() {
@@ -43,7 +46,7 @@ class _AdvisoryPanelState extends State<AdvisoryPanel> {
       _results = null;
       _cooldown = 30;
     });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (!mounted) return;
       setState(() => _cooldown--);
       if (_cooldown == 0) timer.cancel();
@@ -58,10 +61,7 @@ class _AdvisoryPanelState extends State<AdvisoryPanel> {
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error =
-              'Ricerca non riuscita: NVD può essere indisponibile o limitare le richieste. Riprova più tardi.',
-        );
+        setState(() => _error = 'advisory.error');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -72,87 +72,90 @@ class _AdvisoryPanelState extends State<AdvisoryPanel> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const SizedBox(height: 32),
+      SizedBox(height: 32),
       Text(
-        '2. Cerca avvisi di sicurezza',
+        tr(context, 'advisory.title'),
         style: Theme.of(context).textTheme.titleLarge,
       ),
-      const SizedBox(height: 12),
-      const Text(
-        'Leggi produttore e modello sull’etichetta; il firmware è solitamente nelle impostazioni. '
-        'Se compilati via ONVIF, conferma i dati dichiarati dal dispositivo.',
-      ),
-      const SizedBox(height: 16),
+      SizedBox(height: 12),
+      Text(tr(context, 'advisory.instructions')),
+      SizedBox(height: 16),
       TextField(
         controller: widget.model,
         maxLength: 100,
         enabled: !_busy,
-        decoration: const InputDecoration(labelText: 'Produttore e modello'),
+        decoration: InputDecoration(labelText: tr(context, 'advisory.model')),
       ),
-      const SizedBox(height: 12),
+      SizedBox(height: 12),
       TextField(
         controller: widget.firmware,
         maxLength: 80,
-        decoration: const InputDecoration(
-          labelText: 'Firmware (facoltativo, resta sul dispositivo)',
+        decoration: InputDecoration(
+          labelText: tr(context, 'advisory.firmware'),
         ),
       ),
       CheckboxListTile(
         contentPadding: EdgeInsets.zero,
         controlAffinity: ListTileControlAffinity.leading,
-        title: const Text(
-          'Invia produttore e modello a NVD per questa ricerca.',
-        ),
-        subtitle: const Text(
-          'Servizio NIST negli USA: riceve il testo cercato e il tuo IP pubblico. '
-          'Non inserire nomi, password o numeri di serie.',
-        ),
+        title: Text(tr(context, 'advisory.allow')),
+        subtitle: Text(tr(context, 'advisory.privacy')),
         value: _allow,
         onChanged: _busy ? null : (v) => setState(() => _allow = v ?? false),
       ),
       OutlinedButton.icon(
         onPressed: _allow && !_busy && _cooldown == 0 ? _search : null,
-        icon: const Icon(Icons.search),
+        icon: Icon(Icons.search),
         label: Text(
           _busy
-              ? 'Ricerca in corso…'
+              ? tr(context, 'advisory.running')
               : _cooldown > 0
-              ? 'Nuova ricerca tra $_cooldown s'
-              : 'Cerca avvisi pubblici',
+              ? tr(context, 'advisory.cooldown', {'seconds': _cooldown})
+              : tr(context, 'advisory.search'),
         ),
       ),
       if (_busy)
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: LinearProgressIndicator(),
         ),
       if (_error != null) StatusText(_error!),
       if (_results != null) ...[
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(
-          '${_results!.total} risultati per “$_query” · mostrati ${_results!.items.length}',
+          tr(context, 'advisory.results', {
+            'total': _results!.total,
+            'query': _query,
+            'shown': _results!.items.length,
+          }),
         ),
-        const StatusText(
-          'Abbinamenti per parole chiave, da verificare. '
-          'Il firmware non è stato confrontato con le versioni vulnerabili. '
-          'Zero risultati non significa assenza di vulnerabilità.',
-        ),
+        StatusText(tr(context, 'advisory.candidates')),
         for (final item in _results!.items)
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             title: Text(item.id),
-            subtitle: const Text('Possibile corrispondenza · non confermata'),
+            subtitle: Text(tr(context, 'advisory.candidate')),
             children: [
               SelectableText(item.description),
               TextButton(
                 onPressed: () => widget.open(item.url),
-                child: const Text(
-                  'Apri fonte NVD e riferimenti del produttore',
-                ),
+                child: Text(tr(context, 'advisory.source')),
               ),
             ],
           ),
       ],
+      OfficialMatch(
+        model: widget.model,
+        firmware: widget.firmware,
+        open: widget.open,
+        onMatch: (value) => setState(() => _match = value),
+      ),
+      if (_results != null || _match?.cve != null)
+        ThreatPanel(
+          ids: {
+            ...?_results?.items.map((item) => item.id),
+            if (_match?.cve != null) _match!.cve!,
+          }.toList(),
+        ),
     ],
   );
 }

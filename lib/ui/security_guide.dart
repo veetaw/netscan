@@ -1,3 +1,4 @@
+import '../l10n/strings.dart';
 import 'package:flutter/material.dart';
 import '../core/hardening.dart';
 
@@ -15,46 +16,43 @@ class SecurityGuide extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const SizedBox(height: 32),
+      SizedBox(height: 32),
       Text(
-        '3. Proteggi la rete, un passo alla volta',
+        tr(context, 'guide.title'),
         style: Theme.of(context).textTheme.titleLarge,
       ),
-      const SizedBox(height: 12),
-      const Text(
-        'Controlli guidati nelle impostazioni. Le conferme qui sotto sono tue dichiarazioni, '
-        'non verifiche automatiche o certificazioni. Restano solo in questa sessione.',
-      ),
+      SizedBox(height: 12),
+      Text(tr(context, 'guide.instructions')),
       for (final step in hardeningSteps)
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
-          title: Text(step.title),
+          title: Text(tr(context, step.title)),
           subtitle: Text(
             confirmed.contains(step.id)
-                ? 'Confermato da te'
-                : 'Da verificare nelle impostazioni',
+                ? tr(context, 'guide.confirmed')
+                : tr(context, 'guide.todo'),
           ),
           children: [
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                step.why,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                tr(context, step.why),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
-            const SizedBox(height: 12),
-            Text(step.action),
-            const SizedBox(height: 12),
-            Text('Come verificare: ${step.verify}'),
+            SizedBox(height: 12),
+            Text(tr(context, step.action)),
+            SizedBox(height: 12),
+            Text('${tr(context, 'guide.verify')}: ${tr(context, step.verify)}'),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Ho verificato questa impostazione'),
+              title: Text(tr(context, 'guide.checked')),
               value: confirmed.contains(step.id),
               onChanged: (v) => onChanged(step.id, v ?? false),
             ),
             TextButton(
               onPressed: () => open(Uri.parse(step.source)),
-              child: const Text('Leggi la fonte'),
+              child: Text(tr(context, 'guide.source')),
             ),
           ],
         ),
