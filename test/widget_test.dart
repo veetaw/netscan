@@ -28,7 +28,11 @@ void main() {
         await tester.ensureVisible(find.text('Controlla dispositivo'));
         await tester.tap(find.text('Controlla dispositivo'));
         await tester.pump();
-        await tester.scrollUntilVisible(find.textContaining('Inserisci un IP privato'), 100);
+        await tester.scrollUntilVisible(
+          find.textContaining('Inserisci un IP privato'),
+          100,
+          scrollable: find.byType(Scrollable).first,
+        );
         expect(find.textContaining('Inserisci un IP privato'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
