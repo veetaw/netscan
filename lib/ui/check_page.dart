@@ -51,11 +51,12 @@ class _CheckPageState extends State<CheckPage> {
       final report = await inspectHost(host, https: _https);
       if (mounted) setState(() => _report = report);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _scanError =
               'Controllo non riuscito. Verifica il permesso di rete locale e riprova.',
         );
+      }
     } finally {
       if (mounted) setState(() => _scanning = false);
     }
@@ -70,17 +71,19 @@ class _CheckPageState extends State<CheckPage> {
     });
     try {
       final found = await searchAdvisories(model);
-      if (mounted)
+      if (mounted) {
         setState(() {
           _advisories = found;
           _searchedModel = model;
         });
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _searchError =
               'Ricerca non riuscita. Verifica produttore e modello; NVD può essere temporaneamente indisponibile o limitare le richieste. Riprova tra almeno 30 secondi.',
         );
+      }
     } finally {
       if (mounted) setState(() => _searching = false);
     }
@@ -90,12 +93,13 @@ class _CheckPageState extends State<CheckPage> {
     try {
       if (!await launchUrl(uri)) throw StateError('Link non aperto');
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Impossibile aprire il link in questo dispositivo.'),
           ),
         );
+      }
     }
   }
 
@@ -301,7 +305,7 @@ class _CheckPageState extends State<CheckPage> {
                       }),
                     ),
                   );
-                  if (context.mounted)
+                  if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
@@ -309,6 +313,7 @@ class _CheckPageState extends State<CheckPage> {
                         ),
                       ),
                     );
+                  }
                 },
                 icon: const Icon(Icons.copy),
                 label: const Text('Copia report locale'),

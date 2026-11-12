@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import '../core/report.dart';
 
 Future<ScanReport> inspectHost(String host, {bool https = true}) async {
-  if (!isPrivateIPv4(host))
+  if (!isPrivateIPv4(host)) {
     throw ArgumentError('Indirizzo privato IPv4 richiesto.');
+  }
   if (Platform.isAndroid) {
     final allowed = await const MethodChannel(
       'dev.netscan/permissions',
