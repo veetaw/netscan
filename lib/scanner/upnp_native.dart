@@ -7,22 +7,27 @@ import '../core/upnp.dart';
 Future<Uri?> _discover(String host) async {
   final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
   final result = Completer<Uri>();
-  final listener = socket.listen((event) {
-    if (event != RawSocketEvent.read) return;
-    final packet = socket.receive();
-    if (packet == null ||
-        packet.address.address != host ||
-        packet.data.length > 16384) {
-      return;
-    }
-    final text = utf8.decode(packet.data, allowMalformed: true);
-    if (!text.startsWith('HTTP/1.1 200')) return;
-    for (final line in text.split('\r\n')) {
-      if (!line.toLowerCase().startsWith('location:')) continue;
-      final location = sameHostUri(line.substring(9).trim(), host);
-      if (location != null && !result.isCompleted) result.complete(location);
-    }
-  });
+  final listener = socket.listen(
+    (event) {
+      if (event != RawSocketEvent.read) return;
+      final packet = socket.receive();
+      if (packet == null ||
+          packet.address.address != host ||
+          packet.data.length > 16384) {
+        return;
+      }
+      final text = utf8.decode(packet.data, allowMalformed: true);
+      if (!text.startsWith('HTTP/1.1 200')) return;
+      for (final line in text.split('\r\n')) {
+        if (!line.toLowerCase().startsWith('location:')) continue;
+        final location = sameHostUri(line.substring(9).trim(), host);
+        if (location != null && !result.isCompleted) result.complete(location);
+      }
+    },
+    onError: (Object error, StackTrace stack) {
+      if (!result.isCompleted) result.completeError(error, stack);
+    },
+  );
   try {
     // A targeted unicast search, no multicast entitlement or network-wide sweep.
     socket.send(

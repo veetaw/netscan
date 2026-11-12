@@ -16,7 +16,7 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 if (call.method != "requestLocalNetwork") {
                     result.notImplemented()
-                } else if (Build.VERSION.SDK_INT < 37 || checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+                } else if (Build.VERSION.SDK_INT < 37 || applicationInfo.targetSdkVersion < 37 || checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
                     result.success(true)
                 } else if (pending != null) {
                     result.error("busy", "Richiesta già in corso", null)

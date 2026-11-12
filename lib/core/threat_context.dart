@@ -47,7 +47,7 @@ Future<Map<String, ThreatContext>> fetchThreatContext(
       ),
     ]);
     final kev = feeds[0], epss = feeds[1];
-    final kevValid =
+    var kevValid =
         kev?['vulnerabilities'] is List &&
         kev?['dateReleased'] is String &&
         (kev!['vulnerabilities'] as List).isNotEmpty;
@@ -57,6 +57,12 @@ Future<Map<String, ThreatContext>> fetchThreatContext(
               .map((v) => v['cveID'])
               .toSet()
         : <dynamic>{};
+    if (known
+        .whereType<String>()
+        .where((id) => RegExp(r'^CVE-[0-9]{4}-[0-9]{4,}$').hasMatch(id))
+        .isEmpty) {
+      kevValid = false;
+    }
     final probabilities = <String, Map>{};
     if (epss?['data'] is List) {
       for (final item in (epss!['data'] as List).whereType<Map>()) {
@@ -67,9 +73,11 @@ Future<Map<String, ThreatContext>> fetchThreatContext(
       for (final id in unique)
         id: ThreatContext(
           kev: kevValid ? known.contains(id) : null,
-          kevDate: kevValid ? kev['dateReleased'] as String : null,
+          kevDate: kevValid ? kev!['dateReleased'] as String : null,
           epss: _probability(probabilities[id]?['epss']),
-          epssDate: probabilities[id]?['date'] as String?,
+          epssDate: probabilities[id]?['date'] is String
+              ? probabilities[id]!['date'] as String
+              : null,
         ),
     };
   } finally {

@@ -12,9 +12,20 @@ elif not all(values.values()):
     raise SystemExit('All four Android signing secrets are required together.')
 else:
     def property_escape(value):
-        return ''.join('\\u%04x' % ord(c) if ord(c) > 126 else '\\' + c if c in '\\:=#! ' else '\\n' if c == '\n' else '\\r' if c == '\r' else c for c in value)
+        output = []
+        for char in value:
+            if char in '\\:=#! ':
+                output.append('\\' + char)
+            elif char in '\n\r\t\f':
+                output.append({'\n': '\\n', '\r': '\\r', '\t': '\\t', '\f': '\\f'}[char])
+            elif ord(char) > 126:
+                encoded = char.encode('utf-16-be')
+                output.extend('\\u%04x' % int.from_bytes(encoded[i:i+2], 'big') for i in range(0, len(encoded), 2))
+            else:
+                output.append(char)
+        return ''.join(output)
     key_path = Path(os.environ['RUNNER_TEMP']) / 'netscan-release.jks'
-    key_path.write_bytes(base64.b64decode(values['KEYSTORE_BASE64'], validate=True))
+    key_path.write_bytes(base64.b64decode(''.join(values['KEYSTORE_BASE64'].split()), validate=True))
     properties = {'storeFile': str(key_path), 'storePassword': values['STORE_PASSWORD'],
                   'keyPassword': values['KEY_PASSWORD'], 'keyAlias': values['KEY_ALIAS']}
     Path('android/key.properties').write_text('\n'.join(f'{k}={property_escape(v)}' for k, v in properties.items()) + '\n')

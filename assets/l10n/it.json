@@ -52,7 +52,7 @@
   "guide.forwarding.title": "Rivedi le porte aperte verso casa",
   "guide.forwarding.why": "Un inoltro può rendere accessibile un dispositivo da Internet.",
   "guide.forwarding.action": "Nel router cerca “Port forwarding”, “Virtual server”, “Port triggering” e “DMZ host”. Rimuovi solo le regole che riconosci come inutili. Evita una DMZ verso camera o NAS. Controlla anche UPnP, PCP/NAT-PMP e le regole in ingresso IPv6.",
-  "guide.forwarding.verify": "L’elenco UPnP del PoC può essere parziale e non rappresenta tutte le regole. Non cambiare le porte per nascondere un servizio: limita davvero gli accessi.",
+  "guide.forwarding.verify": "L’elenco UPnP di Netscan può essere parziale e non rappresenta tutte le regole. Non cambiare le porte per nascondere un servizio: limita davvero gli accessi.",
   "guide.camera-cloud.title": "Controlla chi può vedere le telecamere",
   "guide.camera-cloud.why": "Cloud e P2P possono consentire accesso remoto anche senza port forwarding.",
   "guide.camera-cloud.action": "Nell’app del produttore controlla “Accesso remoto”, “P2P”, “Cloud”, utenti condivisi e sessioni attive. Rimuovi gli accessi sconosciuti, attiva MFA se disponibile e disattiva l’accesso remoto che non usi. Se ti serve accesso da fuori, valuta una VPN mantenuta e accessi limitati invece di esporre direttamente la camera.",
@@ -60,7 +60,7 @@
   "guide.remote-admin.title": "Tieni il pannello del router nella rete fidata",
   "guide.remote-admin.why": "L’amministrazione da Internet aumenta la superficie di attacco.",
   "guide.remote-admin.action": "Nel router cerca “Amministrazione remota”, “Accesso da WAN” o “Web access from Internet” e disattivali se non servono. Consenti il pannello solo dai tuoi dispositivi fidati. Non disattivare alla cieca i servizi di gestione del tuo operatore.",
-  "guide.remote-admin.verify": "Controlla IPv4 e IPv6. Una verifica dalla LAN, anche verso l’IP pubblico, non dimostra il blocco da Internet. Serve una prova autorizzata da una rete esterna; Netscan non la esegue.",
+  "guide.remote-admin.verify": "Controlla IPv4 e IPv6. Una prova dalla LAN, anche verso l’IP pubblico, non dimostra il blocco da Internet. Usa la verifica cellulare separata e conferma la configurazione del router.",
   "app.tagline": "Conosci meglio la tua rete.",
   "app.intro": "Evidenze chiare e passi pratici. Una scansione non certifica la sicurezza di un dispositivo o della rete.",
   "app.local": "App installata · controlli locali",
@@ -209,5 +209,6 @@
   "banner.ssh": "Ricevuto saluto del protocollo SSH. Il banner è un’evidenza dichiarata dal servizio, non prova dello stato delle patch.",
   "banner.telnet": "Ricevuti byte di negoziazione Telnet. Disattiva Telnet se inutile e preferisci amministrazione cifrata dalle reti fidate.",
   "banner.ftp": "Ricevuto saluto FTP. Verifica che la cifratura sia obbligatoria e disattiva il servizio se inutile.",
-  "banner.unknown": "Nessun saluto di protocollo conclusivo. Non identificare un servizio dal solo numero di porta."
+  "banner.unknown": "Nessun saluto di protocollo conclusivo. Non identificare un servizio dal solo numero di porta.",
+  "inventory.latest": "Ultime osservazioni"
 }

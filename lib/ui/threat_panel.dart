@@ -13,13 +13,15 @@ class _ThreatPanelState extends State<ThreatPanel> {
   bool _allowed = false, _busy = false;
   Map<String, ThreatContext>? _data;
   Future<void> _fetch() async {
+    final requested = widget.ids.join(',');
     setState(() => _busy = true);
-    final data = await fetchThreatContext(widget.ids);
-    if (mounted) {
-      setState(() {
-        _data = data;
-        _busy = false;
-      });
+    try {
+      final data = await fetchThreatContext(widget.ids);
+      if (mounted && requested == widget.ids.join(',')) {
+        setState(() => _data = data);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 

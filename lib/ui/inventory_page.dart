@@ -165,6 +165,12 @@ class _InventoryPageState extends State<InventoryPage> {
                     },
                   ),
                   Text(tr(context, 'inventory.groupHint')),
+                  if (record.history.isNotEmpty)
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      title: Text(tr(context, 'inventory.latest')),
+                      children: [ReportView(report: record.history.first)],
+                    ),
                   if (record.history.length > 1)
                     _DeltaView(record.history[1], record.history[0]),
                   TextButton.icon(

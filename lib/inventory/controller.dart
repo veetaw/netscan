@@ -52,18 +52,21 @@ class InventoryController extends ChangeNotifier {
     try {
       final raw = await _storage.read();
       if (raw == null || _closed) return;
-      final data = jsonDecode(raw) as Map<String, dynamic>;
       final reports = importReports(raw);
+      final data = jsonDecode(raw) as Map<String, dynamic>;
       final metadata = data['devices'] as List<dynamic>? ?? [];
-      if (metadata.length > 256)
+      if (metadata.length > 256) {
         throw const FormatException('Inventory too large');
+      }
       for (final report in reports) {
         addReport(report, notify: false);
       }
       for (final info in metadata) {
         final host = info['host'] as String, name = info['name'] as String;
-        if (host.length > 64 || name.length > 200)
+        if (host.length > 64 || name.length > 200) {
           throw const FormatException('Invalid metadata');
+        }
+        if (devices.length >= 256 && !devices.containsKey(host)) continue;
         final record = devices.putIfAbsent(host, () => DeviceRecord(host));
         record.name = name;
         record.group =
@@ -79,8 +82,9 @@ class InventoryController extends ChangeNotifier {
   }
 
   void addDiscovery(String host, String name, String service) {
-    if (_closed || (devices.length >= 256 && !devices.containsKey(host)))
+    if (_closed || (devices.length >= 256 && !devices.containsKey(host))) {
       return;
+    }
     final record = devices.putIfAbsent(
       host,
       () => DeviceRecord(host, name: name),
@@ -90,12 +94,18 @@ class InventoryController extends ChangeNotifier {
   }
 
   void addReport(ScanReport report, {bool notify = true}) {
-    if (_closed || (devices.length >= 256 && !devices.containsKey(report.host)))
+    if (_closed ||
+        (devices.length >= 256 && !devices.containsKey(report.host))) {
       return;
+    }
     final record = devices.putIfAbsent(
       report.host,
       () => DeviceRecord(report.host),
     );
+    if (record.name == report.host && report.identity != null) {
+      record.name = '${report.identity!.manufacturer} ${report.identity!.model}'
+          .trim();
+    }
     record.history.insert(0, report);
     if (record.history.length > 2) record.history.removeLast();
     if (notify) flush();

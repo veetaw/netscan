@@ -16,7 +16,7 @@ String _normal(String value) =>
     value.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 List<int>? _versionBuild(String input, int dateLength) {
   final match = RegExp(
-    '^[vV]?([0-9]+)\\.([0-9]+)\\.([0-9]+) [bB][uU][iI][lL][dD] ([0-9]{$dateLength})'
+    '^[vV]?([0-9]{1,5})\\.([0-9]{1,5})\\.([0-9]{1,5}) [bB][uU][iI][lL][dD] ([0-9]{$dateLength})'
     r'(?: rel\.[0-9]+)?$',
   ).firstMatch(input.trim());
   if (match == null) return null;

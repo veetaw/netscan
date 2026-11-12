@@ -322,6 +322,7 @@ const english = <String, String>{
       "FTP greeting received. Verify whether encryption is enforced and disable the service if unnecessary.",
   "banner.unknown":
       "No conclusive protocol greeting. Do not identify a service from the port number alone.",
+  "inventory.latest": "Latest observations",
 };
 const italian = <String, String>{
   "rtsp.unknown": "Porta raggiungibile, protocollo RTSP non confermato.",
@@ -421,7 +422,7 @@ const italian = <String, String>{
   "guide.forwarding.action":
       "Nel router cerca “Port forwarding”, “Virtual server”, “Port triggering” e “DMZ host”. Rimuovi solo le regole che riconosci come inutili. Evita una DMZ verso camera o NAS. Controlla anche UPnP, PCP/NAT-PMP e le regole in ingresso IPv6.",
   "guide.forwarding.verify":
-      "L’elenco UPnP del PoC può essere parziale e non rappresenta tutte le regole. Non cambiare le porte per nascondere un servizio: limita davvero gli accessi.",
+      "L’elenco UPnP di Netscan può essere parziale e non rappresenta tutte le regole. Non cambiare le porte per nascondere un servizio: limita davvero gli accessi.",
   "guide.camera-cloud.title": "Controlla chi può vedere le telecamere",
   "guide.camera-cloud.why":
       "Cloud e P2P possono consentire accesso remoto anche senza port forwarding.",
@@ -435,7 +436,7 @@ const italian = <String, String>{
   "guide.remote-admin.action":
       "Nel router cerca “Amministrazione remota”, “Accesso da WAN” o “Web access from Internet” e disattivali se non servono. Consenti il pannello solo dai tuoi dispositivi fidati. Non disattivare alla cieca i servizi di gestione del tuo operatore.",
   "guide.remote-admin.verify":
-      "Controlla IPv4 e IPv6. Una verifica dalla LAN, anche verso l’IP pubblico, non dimostra il blocco da Internet. Serve una prova autorizzata da una rete esterna; Netscan non la esegue.",
+      "Controlla IPv4 e IPv6. Una prova dalla LAN, anche verso l’IP pubblico, non dimostra il blocco da Internet. Usa la verifica cellulare separata e conferma la configurazione del router.",
   "app.tagline": "Conosci meglio la tua rete.",
   "app.intro":
       "Evidenze chiare e passi pratici. Una scansione non certifica la sicurezza di un dispositivo o della rete.",
@@ -648,4 +649,5 @@ const italian = <String, String>{
       "Ricevuto saluto FTP. Verifica che la cifratura sia obbligatoria e disattiva il servizio se inutile.",
   "banner.unknown":
       "Nessun saluto di protocollo conclusivo. Non identificare un servizio dal solo numero di porta.",
+  "inventory.latest": "Ultime osservazioni",
 };

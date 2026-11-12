@@ -32,6 +32,15 @@ ScanReport reportFromJson(Map<String, dynamic> data, {bool imported = true}) {
   if (rawProtocols.length > 128) {
     throw const FormatException('Too many protocols');
   }
+  for (final p in rawProtocols.cast<Map<String, dynamic>>()) {
+    final port = p['port'], status = p['status'];
+    if (port is! int ||
+        port < 1 ||
+        port > 65535 ||
+        (status != null && (status is! int || status < 100 || status > 599))) {
+      throw const FormatException('Invalid protocol observation');
+    }
+  }
   final protocols = [
     for (final p in rawProtocols.cast<Map<String, dynamic>>())
       ProtocolObservation(
