@@ -62,7 +62,7 @@ Future<ProtocolObservation> inspectRtsp(String host, int port) async {
       status: status,
       metadataWithoutAuth: metadata,
       summary: metadata
-          ? 'Il percorso / offre metadati dello stream senza credenziali. Verifica l’autenticazione della camera. Non è stata provata la visione del video.'
+          ? 'Il percorso / risponde senza credenziali dichiarando metadati SDP. Verifica l’autenticazione della camera. Non è stata provata la visione del video.'
           : [401, 403].contains(status)
           ? 'Il percorso / richiede autenticazione o nega accesso. Questo non verifica gli altri percorsi o l’accesso cloud.'
           : 'RTSP confermato; accesso video non determinabile sul percorso /. Nessuna immagine acquisita.',

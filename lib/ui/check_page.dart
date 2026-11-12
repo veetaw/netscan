@@ -1,13 +1,16 @@
-import 'security_guide.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../core/advisories.dart';
 import '../core/report.dart';
 import '../scanner/scanner.dart';
+import 'advisory_panel.dart';
+import 'external_check.dart';
+import 'privacy_button.dart';
 import 'report_view.dart';
+import 'scan_form.dart';
+import 'security_guide.dart';
 
 class CheckPage extends StatefulWidget {
   const CheckPage({super.key});
@@ -19,14 +22,10 @@ class _CheckPageState extends State<CheckPage> {
   final _host = TextEditingController();
   final _model = TextEditingController();
   final _firmware = TextEditingController();
-  bool _authorized = false, _external = false, _https = true;
-  bool _scanning = false, _searching = false;
-  ScanReport? _report;
-  AdvisorySearch? _advisories;
-  String? _scanError, _searchError;
-  String _searchedModel = '';
   final _confirmed = <String>{};
-
+  bool _authorized = false, _https = true, _busy = false;
+  ScanReport? _report;
+  String? _error;
   @override
   void dispose() {
     _host.dispose();
@@ -39,14 +38,14 @@ class _CheckPageState extends State<CheckPage> {
     final host = _host.text.trim();
     if (!isPrivateIPv4(host)) {
       setState(
-        () => _scanError =
+        () => _error =
             'Inserisci un IP privato, per esempio 192.168.1.1. Lo trovi nell’elenco dispositivi del router.',
       );
       return;
     }
     setState(() {
-      _scanning = true;
-      _scanError = null;
+      _busy = true;
+      _error = null;
       _report = null;
     });
     try {
@@ -64,39 +63,12 @@ class _CheckPageState extends State<CheckPage> {
     } catch (_) {
       if (mounted) {
         setState(
-          () => _scanError =
+          () => _error =
               'Controllo non riuscito. Verifica il permesso di rete locale e riprova.',
         );
       }
     } finally {
-      if (mounted) setState(() => _scanning = false);
-    }
-  }
-
-  Future<void> _search() async {
-    final model = _model.text.trim();
-    setState(() {
-      _searching = true;
-      _searchError = null;
-      _advisories = null;
-    });
-    try {
-      final found = await searchAdvisories(model);
-      if (mounted) {
-        setState(() {
-          _advisories = found;
-          _searchedModel = model;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(
-          () => _searchError =
-              'Ricerca non riuscita. Verifica produttore e modello; NVD può essere temporaneamente indisponibile o limitare le richieste. Riprova tra almeno 30 secondi.',
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _searching = false);
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -114,28 +86,33 @@ class _CheckPageState extends State<CheckPage> {
     }
   }
 
+  Future<void> _copy() async {
+    await Clipboard.setData(
+      ClipboardData(
+        text: const JsonEncoder.withIndent('  ').convert({
+          ..._report!.toJson(),
+          'model': _model.text.trim(),
+          'firmware': _firmware.text.trim(),
+          'userConfirmedChecks': _confirmed.toList(),
+        }),
+      ),
+    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Report copiato. Contiene indirizzi di rete: condividilo con attenzione.',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: const Text('netscan'),
-      actions: [
-        TextButton(
-          onPressed: () => showAboutDialog(
-            context: context,
-            applicationName: 'Netscan',
-            applicationVersion: '0.1.0 · PoC',
-            children: const [
-              Text(
-                'I controlli restano in memoria fino alla chiusura. Nessuna telemetria o account. '
-                'La ricerca NVD invia il testo del prodotto a NIST negli USA, che riceve anche il tuo IP pubblico. '
-                'I link esterni sono soggetti alle informative dei rispettivi siti. '
-                'Nessun risultato certifica la sicurezza del dispositivo.',
-              ),
-            ],
-          ),
-          child: const Text('Privacy'),
-        ),
-      ],
+      actions: const [PrivacyButton()],
     ),
     body: Center(
       child: ConstrainedBox(
@@ -156,154 +133,24 @@ class _CheckPageState extends State<CheckPage> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Un dispositivo alla volta, con indicazioni comprensibili. '
-              'Questa prima versione non identifica automaticamente modello e firmware.',
+              'Un dispositivo alla volta, con evidenze e passi pratici. '
+              'Il PoC non rileva ogni vulnerabilità né certifica la sicurezza della rete.',
             ),
             const SizedBox(height: 32),
-            Text(
-              '1. Controlla un dispositivo',
-              style: Theme.of(context).textTheme.titleLarge,
+            ScanForm(
+              host: _host,
+              busy: _busy,
+              authorized: _authorized,
+              https: _https,
+              authorize: (v) => setState(() => _authorized = v),
+              setHttps: (v) => setState(() => _https = v),
+              scan: _scan,
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _host,
-              enabled: !_scanning,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: const InputDecoration(
-                labelText: 'Indirizzo IP locale',
-                hintText: '192.168.1.1',
-              ),
-            ),
-            if (kIsWeb)
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Usa HTTPS'),
-                subtitle: const Text(
-                  'Il browser può bloccare HTTP e certificati non validi.',
-                ),
-                value: _https,
-                onChanged: _scanning ? null : (v) => setState(() => _https = v),
-              ),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              title: const Text(
-                'La rete è mia o ho il permesso di controllarla.',
-              ),
-              value: _authorized,
-              onChanged: _scanning
-                  ? null
-                  : (v) => setState(() => _authorized = v ?? false),
-            ),
-            FilledButton.icon(
-              onPressed: _authorized && !_scanning ? _scan : null,
-              icon: const Icon(Icons.radar),
-              label: Text(
-                _scanning ? 'Controllo in corso…' : 'Controlla dispositivo',
-              ),
-            ),
-            if (_scanning)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: LinearProgressIndicator(),
-              ),
-            if (_scanError != null) StatusText(_scanError!),
+            if (_error != null) StatusText(_error!),
             if (_report != null) ReportView(report: _report!),
-            const SizedBox(height: 32),
-            Text(
-              '2. Cerca avvisi di sicurezza',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Leggi produttore e modello sull’etichetta; il firmware è solitamente nelle impostazioni del dispositivo.',
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _model,
-              maxLength: 100,
-              enabled: !_searching,
-              decoration: const InputDecoration(
-                labelText: 'Produttore e modello',
-                hintText: 'Per esempio: marca e modello del router',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _firmware,
-              maxLength: 80,
-              decoration: const InputDecoration(
-                labelText: 'Firmware (facoltativo, resta sul dispositivo)',
-              ),
-            ),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              title: const Text(
-                'Invia produttore e modello a NVD per questa ricerca.',
-              ),
-              subtitle: const Text(
-                'Servizio NIST negli USA: riceve il testo cercato e il tuo IP pubblico. Non inserire nomi, password o numeri di serie.',
-              ),
-              value: _external,
-              onChanged: _searching
-                  ? null
-                  : (v) => setState(() => _external = v ?? false),
-            ),
-            OutlinedButton.icon(
-              onPressed: _external && !_searching ? _search : null,
-              icon: const Icon(Icons.search),
-              label: Text(
-                _searching ? 'Ricerca in corso…' : 'Cerca avvisi pubblici',
-              ),
-            ),
-            if (_searching)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: LinearProgressIndicator(),
-              ),
-            if (_searchError != null) StatusText(_searchError!),
-            if (_advisories != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                '${_advisories!.total} risultati per “$_searchedModel” · mostrati ${_advisories!.items.length}',
-              ),
-              const StatusText(
-                'Abbinamenti per parole chiave, da verificare. '
-                'Non abbiamo confrontato il firmware con le versioni vulnerabili. '
-                'Zero risultati non significa assenza di vulnerabilità.',
-              ),
-              for (final item in _advisories!.items)
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  title: Text(item.id),
-                  subtitle: const Text(
-                    'Possibile corrispondenza · non confermata',
-                  ),
-                  children: [
-                    SelectableText(item.description),
-                    TextButton(
-                      onPressed: () => _open(item.url),
-                      child: const Text(
-                        'Apri fonte NVD e riferimenti del produttore',
-                      ),
-                    ),
-                  ],
-                ),
-            ],
+            AdvisoryPanel(model: _model, firmware: _firmware, open: _open),
             const SizedBox(height: 24),
-            const Text(
-              'Come muoverti',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              'Confronta modello, revisione hardware e firmware con l’avviso ufficiale. '
-              'Se applicabile, segui le istruzioni di aggiornamento del produttore. '
-              'Non installare firmware destinati a un modello diverso. '
-              'Se il dispositivo non è più supportato, valuta sostituzione o isolamento in una rete ospiti.',
-            ),
+            if (!kIsWeb) const ExternalCheck(),
             SecurityGuide(
               confirmed: _confirmed,
               onChanged: (id, value) => setState(() {
@@ -317,27 +164,7 @@ class _CheckPageState extends State<CheckPage> {
             ),
             if (_report != null)
               TextButton.icon(
-                onPressed: () async {
-                  await Clipboard.setData(
-                    ClipboardData(
-                      text: const JsonEncoder.withIndent('  ').convert({
-                        ..._report!.toJson(),
-                        'model': _model.text.trim(),
-                        'firmware': _firmware.text.trim(),
-                        'userConfirmedChecks': _confirmed.toList(),
-                      }),
-                    ),
-                  );
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Report copiato. Contiene l’IP locale: condividilo con attenzione.',
-                        ),
-                      ),
-                    );
-                  }
-                },
+                onPressed: _copy,
                 icon: const Icon(Icons.copy),
                 label: const Text('Copia report locale'),
               ),
@@ -345,7 +172,7 @@ class _CheckPageState extends State<CheckPage> {
               const Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: Text(
-                  'Vuoi un controllo più completo? La versione installata può verificare protocolli e UPnP. '
+                  'Per i controlli di protocolli, UPnP e accessi esterni usa l’app installata. '
                   'Il PoC è disponibile dal sorgente; i download pubblici non sono ancora pubblicati.',
                 ),
               ),

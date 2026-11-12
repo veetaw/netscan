@@ -8,10 +8,11 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
   final client = http.Client();
   try {
     final response = await client
-        .get(Uri(scheme: https ? 'https' : 'http', host: host))
+        .head(Uri(scheme: https ? 'https' : 'http', host: host))
         .timeout(const Duration(seconds: 6));
     return ScanReport(
       host: host,
+      completedAt: DateTime.now(),
       method: 'browser-http',
       httpStatus: response.statusCode,
       message:
@@ -21,6 +22,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
   } catch (_) {
     return ScanReport(
       host: host,
+      completedAt: DateTime.now(),
       method: 'browser-http',
       message:
           'Esito non determinabile dal browser. Possibili cause: CORS, '

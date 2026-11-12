@@ -16,6 +16,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
     if (allowed != true) {
       return ScanReport(
         host: host,
+        completedAt: DateTime.now(),
         method: 'tcp',
         message:
             'Permesso di rete locale negato. Abilitalo nelle impostazioni per riprovare.',
@@ -51,6 +52,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
   }
   return ScanReport(
     host: host,
+    completedAt: DateTime.now(),
     method: 'tcp+ssdp+onvif+rtsp',
     ports: ports,
     protocols: protocols,

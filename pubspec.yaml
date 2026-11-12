@@ -1,5 +1,5 @@
 name: netscan
-description: "A new Flutter project."
+description: "Controlli locali e guida alla sicurezza della rete domestica."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -37,6 +39,7 @@ dependencies:
   http: ^1.6.0
   url_launcher: ^6.3.3
   xml: ^7.0.1
+  connectivity_plus: ^7.3.2
 
 dev_dependencies:
   flutter_test:

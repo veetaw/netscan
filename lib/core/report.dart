@@ -17,6 +17,7 @@ class ScanReport {
     this.upnp,
     this.protocols = const [],
     this.identity,
+    this.completedAt,
   });
   final String host;
   final String method;
@@ -26,8 +27,10 @@ class ScanReport {
   final UpnpObservation? upnp;
   final List<ProtocolObservation> protocols;
   final DeviceIdentity? identity;
+  final DateTime? completedAt;
   Map<String, Object?> toJson() => {
     'schemaVersion': 1,
+    'completedAtUtc': completedAt?.toUtc().toIso8601String(),
     'host': host,
     'method': method,
     'message': message,
@@ -35,7 +38,9 @@ class ScanReport {
     'upnp': upnp?.toJson(),
     'protocols': [for (final p in protocols) p.toJson()],
     'identity': identity?.toJson(),
-    'wanExposure': 'not_verified',
+    'wanExposure': method == 'external-tcp-cellular-reported'
+        ? 'limited_cellular_probe'
+        : 'not_verified',
     'cloudP2PAccess': 'not_verified',
     'ports': [
       for (final p in ports) {'port': p.port, 'reachable': p.reachable},

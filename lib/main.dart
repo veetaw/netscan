@@ -1,3 +1,4 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'ui/check_page.dart';
 
@@ -8,6 +9,9 @@ class NetscanApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Netscan',
+    locale: const Locale('it'),
+    supportedLocales: const [Locale('it')],
+    localizationsDelegates: GlobalMaterialLocalizations.delegates,
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
