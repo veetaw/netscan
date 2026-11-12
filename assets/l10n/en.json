@@ -210,5 +210,7 @@
   "banner.telnet": "Telnet negotiation bytes received. Disable unused Telnet and prefer encrypted administration on trusted networks.",
   "banner.ftp": "FTP greeting received. Verify whether encryption is enforced and disable the service if unnecessary.",
   "banner.unknown": "No conclusive protocol greeting. Do not identify a service from the port number alone.",
-  "inventory.latest": "Latest observations"
+  "inventory.latest": "Latest observations",
+  "advisory.attribution": "This product uses the NVD API but is not endorsed or certified by the NVD.",
+  "threat.attribution": "EPSS data: FIRST EPSS / Empirical Security. KEV data: CISA."
 }

@@ -52,6 +52,7 @@ class _ThreatPanelState extends State<ThreatPanel> {
         child: Text(tr(context, _busy ? 'advisory.running' : 'threat.run')),
       ),
       if (_data != null) ...[
+        Text(tr(context, 'threat.attribution')),
         Text(tr(context, 'threat.scope')),
         for (final entry in _data!.entries)
           ListTile(

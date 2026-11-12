@@ -78,6 +78,10 @@ dart format lib/l10n/catalog.dart
 
 The interface follows the device language with English fallback and an in-app language selector. Original third-party advisory descriptions remain in their source language.
 
+## Data credits
+
+This product uses the NVD API but is not endorsed or certified by the NVD. EPSS data is provided by FIRST EPSS / Empirical Security; KEV data is provided by CISA. These sources do not endorse Netscan.
+
 ## License
 
 [MIT](LICENSE). Third-party dependencies retain their own licenses, available through the app’s license viewer. Nmap is not bundled; Netscan imports its XML format.

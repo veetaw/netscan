@@ -323,6 +323,10 @@ const english = <String, String>{
   "banner.unknown":
       "No conclusive protocol greeting. Do not identify a service from the port number alone.",
   "inventory.latest": "Latest observations",
+  "advisory.attribution":
+      "This product uses the NVD API but is not endorsed or certified by the NVD.",
+  "threat.attribution":
+      "EPSS data: FIRST EPSS / Empirical Security. KEV data: CISA.",
 };
 const italian = <String, String>{
   "rtsp.unknown": "Porta raggiungibile, protocollo RTSP non confermato.",
@@ -650,4 +654,8 @@ const italian = <String, String>{
   "banner.unknown":
       "Nessun saluto di protocollo conclusivo. Non identificare un servizio dal solo numero di porta.",
   "inventory.latest": "Ultime osservazioni",
+  "advisory.attribution":
+      "Questo prodotto usa l’API NVD, ma non è approvato o certificato da NVD.",
+  "threat.attribution":
+      "Dati EPSS: FIRST EPSS / Empirical Security. Dati KEV: CISA.",
 };

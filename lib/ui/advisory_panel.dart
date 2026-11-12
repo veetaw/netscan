@@ -120,6 +120,7 @@ class _AdvisoryPanelState extends State<AdvisoryPanel> {
         ),
       if (_error != null) StatusText(_error!),
       if (_results != null) ...[
+        Text(tr(context, 'advisory.attribution')),
         SizedBox(height: 16),
         Text(
           tr(context, 'advisory.results', {

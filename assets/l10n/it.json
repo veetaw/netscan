@@ -210,5 +210,7 @@
   "banner.telnet": "Ricevuti byte di negoziazione Telnet. Disattiva Telnet se inutile e preferisci amministrazione cifrata dalle reti fidate.",
   "banner.ftp": "Ricevuto saluto FTP. Verifica che la cifratura sia obbligatoria e disattiva il servizio se inutile.",
   "banner.unknown": "Nessun saluto di protocollo conclusivo. Non identificare un servizio dal solo numero di porta.",
-  "inventory.latest": "Ultime osservazioni"
+  "inventory.latest": "Ultime osservazioni",
+  "advisory.attribution": "Questo prodotto usa l’API NVD, ma non è approvato o certificato da NVD.",
+  "threat.attribution": "Dati EPSS: FIRST EPSS / Empirical Security. Dati KEV: CISA."
 }
