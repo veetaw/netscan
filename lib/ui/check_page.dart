@@ -1,3 +1,4 @@
+import 'security_guide.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _CheckPageState extends State<CheckPage> {
   AdvisorySearch? _advisories;
   String? _scanError, _searchError;
   String _searchedModel = '';
+  final _confirmed = <String>{};
 
   @override
   void dispose() {
@@ -49,7 +51,16 @@ class _CheckPageState extends State<CheckPage> {
     });
     try {
       final report = await inspectHost(host, https: _https);
-      if (mounted) setState(() => _report = report);
+      if (mounted) {
+        setState(() {
+          _report = report;
+          final identity = report.identity;
+          if (identity != null && _model.text.trim().isEmpty) {
+            _model.text = '${identity.manufacturer} ${identity.model}'.trim();
+            _firmware.text = identity.firmware;
+          }
+        });
+      }
     } catch (_) {
       if (mounted) {
         setState(
@@ -293,6 +304,17 @@ class _CheckPageState extends State<CheckPage> {
               'Non installare firmware destinati a un modello diverso. '
               'Se il dispositivo non è più supportato, valuta sostituzione o isolamento in una rete ospiti.',
             ),
+            SecurityGuide(
+              confirmed: _confirmed,
+              onChanged: (id, value) => setState(() {
+                if (value) {
+                  _confirmed.add(id);
+                } else {
+                  _confirmed.remove(id);
+                }
+              }),
+              open: _open,
+            ),
             if (_report != null)
               TextButton.icon(
                 onPressed: () async {
@@ -302,6 +324,7 @@ class _CheckPageState extends State<CheckPage> {
                         ..._report!.toJson(),
                         'model': _model.text.trim(),
                         'firmware': _firmware.text.trim(),
+                        'userConfirmedChecks': _confirmed.toList(),
                       }),
                     ),
                   );
@@ -322,7 +345,7 @@ class _CheckPageState extends State<CheckPage> {
               const Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: Text(
-                  'Vuoi un controllo più completo? La versione installata può verificare connessioni TCP. '
+                  'Vuoi un controllo più completo? La versione installata può verificare protocolli e UPnP. '
                   'Il PoC è disponibile dal sorgente; i download pubblici non sono ancora pubblicati.',
                 ),
               ),

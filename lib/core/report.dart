@@ -1,3 +1,6 @@
+import 'protocol.dart';
+import 'upnp.dart';
+
 class PortObservation {
   const PortObservation(this.port, this.reachable);
   final int port;
@@ -11,18 +14,29 @@ class ScanReport {
     required this.message,
     this.ports = const [],
     this.httpStatus,
+    this.upnp,
+    this.protocols = const [],
+    this.identity,
   });
   final String host;
   final String method;
   final String message;
   final List<PortObservation> ports;
   final int? httpStatus;
+  final UpnpObservation? upnp;
+  final List<ProtocolObservation> protocols;
+  final DeviceIdentity? identity;
   Map<String, Object?> toJson() => {
     'schemaVersion': 1,
     'host': host,
     'method': method,
     'message': message,
     'httpStatus': httpStatus,
+    'upnp': upnp?.toJson(),
+    'protocols': [for (final p in protocols) p.toJson()],
+    'identity': identity?.toJson(),
+    'wanExposure': 'not_verified',
+    'cloudP2PAccess': 'not_verified',
     'ports': [
       for (final p in ports) {'port': p.port, 'reachable': p.reachable},
     ],
