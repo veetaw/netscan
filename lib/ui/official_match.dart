@@ -24,7 +24,32 @@ class _OfficialMatchState extends State<OfficialMatch> {
   RuleMatch? _match;
   String _evaluatedModel = '', _evaluatedFirmware = '';
   @override
+  void initState() {
+    super.initState();
+    widget.model.addListener(_detailsChanged);
+    widget.firmware.addListener(_detailsChanged);
+    _hardware.addListener(_detailsChanged);
+  }
+
+  void _detailsChanged() {
+    if (_match == null && !_confirmed) return;
+    _clearResult(resetConfirmation: true);
+  }
+
+  void _clearResult({bool resetConfirmation = false}) {
+    final hadResult = _match != null;
+    setState(() {
+      _match = null;
+      if (resetConfirmation) _confirmed = false;
+    });
+    if (hadResult) widget.onMatch(const RuleMatch(Applicability.unsupported));
+  }
+
+  @override
   void dispose() {
+    widget.model.removeListener(_detailsChanged);
+    widget.firmware.removeListener(_detailsChanged);
+    _hardware.removeListener(_detailsChanged);
     _hardware.dispose();
     super.dispose();
   }
@@ -76,14 +101,20 @@ class _OfficialMatchState extends State<OfficialMatch> {
                 ),
             ],
             onChanged: (value) {
-              if (value != null) setState(() => _region = value);
+              if (value != null) {
+                setState(() => _region = value);
+                _clearResult(resetConfirmation: true);
+              }
             },
           ),
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             value: _confirmed,
             title: Text(tr(context, 'match.confirm')),
-            onChanged: (v) => setState(() => _confirmed = v ?? false),
+            onChanged: (v) {
+              _clearResult();
+              setState(() => _confirmed = v ?? false);
+            },
           ),
           OutlinedButton(
             onPressed: _run,

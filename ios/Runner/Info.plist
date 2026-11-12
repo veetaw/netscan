@@ -6,7 +6,7 @@
 <key>FlutterDeepLinkingEnabled</key><false/>
 <key>NSBonjourServices</key><array><string>_http._tcp</string><string>_https._tcp</string><string>_rtsp._tcp</string><string>_ssh._tcp</string><string>_smb._tcp</string><string>_googlecast._tcp</string><string>_airplay._tcp</string><string>_hap._tcp</string></array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Netscan controlla i dispositivi della rete che hai scelto per aiutarti a proteggerli.</string>
+	<string>Netscan checks devices on the network you choose to help you secure them.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

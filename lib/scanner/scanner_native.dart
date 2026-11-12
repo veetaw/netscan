@@ -55,6 +55,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
       identity ??= result.identity;
     }
   }
+  final upnp = await inspectUpnp(host);
   return ScanReport(
     host: host,
     completedAt: DateTime.now(),
@@ -62,7 +63,7 @@ Future<ScanReport> inspectHost(String host, {bool https = true}) async {
     ports: ports,
     protocols: protocols,
     identity: identity,
-    upnp: await inspectUpnp(host),
+    upnp: upnp,
     message: 'scan.complete',
   );
 }
